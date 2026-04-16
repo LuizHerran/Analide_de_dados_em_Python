@@ -1,8 +1,8 @@
 import sys
-from Funcoes.Funcao1 import concatenar_arquivos
+from Funcoes.Funcao1 import concatenacao
 from Funcoes.Funcao3 import arquivo_resumo_meta_tribunal
 from Funcoes.Funcao2 import menu
-from Funcoes.Funcao4 import relatorio_de_muncipio
+from Funcoes.Funcao4 import relatorio_de_municipio
 
 #-- Menu Geral --
 def menu_opcoes():
@@ -23,7 +23,7 @@ def menu_opcoes():
     while sair == False:
         match opc:
             case 1:
-                concatenar_arquivos()
+                concatenacao()
                 menu_opcoes()
             case 2:
                 menu()
@@ -32,7 +32,7 @@ def menu_opcoes():
                 arquivo_resumo_meta_tribunal()
                 menu_opcoes()
             case 4:
-                relatorio_de_muncipio()
+                relatorio_de_municipio()
                 menu_opcoes()
             case 0:
                 sys.exit()
@@ -41,4 +41,5 @@ def menu_opcoes():
                 opc = int(input('|| Digite a opção: '))
                 continue
 
-menu_opcoes()
+if __name__ == "__main__":
+    menu_opcoes()

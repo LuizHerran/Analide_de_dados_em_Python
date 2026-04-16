@@ -225,9 +225,13 @@ def menu():
 
             #calculaa quantas vezes a parallela é mais rápida que a serial
             speedup = tempo_serial / tempo_paralelo if tempo_paralelo != 0 else 0
-            print(f"\nTempo Serial: {tempo_serial:.4f}")
-            print(f"Tempo Paralelo: {tempo_paralelo:.4f}")
-            print(f"Speedup: {speedup:.2f}")
+            print(f"\nTempo Serial: {tempo_serial:.4f}s")
+            print(f"Tempo Paralelo: {tempo_paralelo:.4f}s")
+            print(f"Speedup: {speedup:.2f}x")
+            if (speedup):
+                print("Analise de Sucesso!")
+            else:
+                print("Analise de Falha de Desempenho!")
         elif opcao == "4":
             print("Saindo...")
             break
