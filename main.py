@@ -29,7 +29,7 @@ def menu_opcoes():
                 menu()
                 menu_opcoes()
             case 3:
-                arquivo_resumo_meta_tribunal()         #Em correção!!
+                arquivo_resumo_meta_tribunal()
                 menu_opcoes()
             case 4:
                 relatorio_de_muncipio()

@@ -11,7 +11,7 @@ from pathlib import Path
 def arquivo_resumo_meta_tribunal():
 
     # Define o diretório base como o diretório onde o script está localizado
-    base_dir = Path(__file__).parent.parent
+    base_dir = Path(__file__).parent
 
     # Define o caminho completo para o arquivo CSV concatenado
     caminho = base_dir / 'arquivos_concatenados.csv'
@@ -24,14 +24,30 @@ def arquivo_resumo_meta_tribunal():
         return
 
     # Carrega o arquivo CSV em um DataFrame do pandas
-    df = pd.read_csv(caminho)
+    df = pd.read_csv(caminho, sep=',', low_memory=False)
 
-    # Agrupa os dados pela coluna 'sigla_tribunal' somando apenas colunas numéricas
+    df.columns = df.columns.str.strip()
+    #print("Colunas encontradas:", df.columns.tolist()) # remover depois
+
+   # GARANTE QUE COLUNAS NUMÉRICAS SÃO NUMÉRICAS
+    colunas_numericas = [
+        'julgados_2026', 'casos_novos_2026', 'dessobrestados_2026', 'suspensos_2026',
+        'julgm2_a', 'distm2_a', 'suspm2_a',
+        'julgm2_ant', 'distm2_ant', 'suspm2_ant', 'desom2_ant',
+        'julgm4_a', 'distm4_a', 'suspm4_a',
+        'julgm4_b', 'distm4_b', 'suspm4_b'
+    ]
+
+    for col in colunas_numericas:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+        else:
+            print(f"Coluna ausente: {col}")
+
+    # GROUPBY
     Organizador_siglas = df.groupby('sigla_tribunal').sum(numeric_only=True)
 
-    # Calcula a Meta1:
-    # (processos julgados em 2026) dividido pela soma de:
-    # casos novos + dessobrestados + suspensos, multiplicado por 100 (percentual)
+    # CÁLCULOS (com proteção contra divisão por zero)
     Organizador_siglas['Meta1'] = (
         Organizador_siglas['julgados_2026'] /
         (Organizador_siglas['casos_novos_2026'] +
@@ -39,16 +55,12 @@ def arquivo_resumo_meta_tribunal():
          Organizador_siglas['suspensos_2026'])
     ) * 100
 
-    # Calcula a Meta2A:
-    # julgados meta 2 (ano atual) dividido por distribuídos + suspensos
     Organizador_siglas['Meta2A'] = (
         Organizador_siglas['julgm2_a'] /
         (Organizador_siglas['distm2_a'] +
          Organizador_siglas['suspm2_a'])
     ) * 100
 
-    # Calcula a Meta2Ant (anos anteriores):
-    # julgados dividido por distribuídos + suspensos + desconsiderados
     Organizador_siglas['Meta2Ant'] = (
         Organizador_siglas['julgm2_ant'] /
         (Organizador_siglas['distm2_ant'] +
@@ -56,36 +68,37 @@ def arquivo_resumo_meta_tribunal():
          Organizador_siglas['desom2_ant'])
     ) * 100
 
-    # Calcula a Meta4A:
-    # julgados dividido por distribuídos + suspensos
     Organizador_siglas['Meta4A'] = (
         Organizador_siglas['julgm4_a'] /
         (Organizador_siglas['distm4_a'] +
          Organizador_siglas['suspm4_a'])
     ) * 100
 
-    # Calcula a Meta4B:
-    # julgados dividido por distribuídos + suspensos
     Organizador_siglas['Meta4B'] = (
         Organizador_siglas['julgm4_b'] /
         (Organizador_siglas['distm4_b'] +
          Organizador_siglas['suspm4_b'])
     ) * 100
 
-    # Reseta o índice para transformar 'sigla_tribunal' de índice para coluna normal
-    Organizador_siglas = Organizador_siglas.reset_index()
+    # LIMPA VALORES INFINITOS (divisão por zero)
+    Organizador_siglas.replace([float('inf'), -float('inf')], 0, inplace=True)
 
-    # Ordena os tribunais pela Meta1 em ordem decrescente (maiores valores primeiro)
+    Organizador_siglas = Organizador_siglas.reset_index()
     Organizador_siglas = Organizador_siglas.sort_values(by='Meta1', ascending=False)
 
-    # Seleciona os 10 primeiros tribunais (top 10)
     top10 = Organizador_siglas.head(10)
 
-    # Mantém apenas as colunas relevantes para o resultado final
     top10 = top10[['sigla_tribunal', 'Meta1', 'Meta2A', 'Meta2Ant', 'Meta4A', 'Meta4B']]
 
-    # Salva o resultado em um novo arquivo CSV sem incluir o índice
+    top10_formatado = top10.copy()
+
+    # esse loop formata as colunas de metas para exibir como porcentagem com 2 casas decimais, ou "N/A" se o valor for nulo
+    for col in ['Meta1', 'Meta2A', 'Meta2Ant', 'Meta4A', 'Meta4B']:
+        top10_formatado[col] = top10_formatado[col].apply(lambda x: f"{x:.2f}%" if pd.notnull(x) else "N/A")
+
+    print("\n=== TOP 10 TRIBUNAIS ===")
+    print(top10_formatado.to_string(index=False))
+
     top10.to_csv('top10_tribunais.csv', index=False)
 
-    # Exibe mensagem de sucesso
     print("Top 10 gerado com sucesso!")

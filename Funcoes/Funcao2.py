@@ -34,7 +34,7 @@ def inicializar_municipio():
 def processar_serial():
     dados = {} # Dicionário mestre para guardar tudo
 
-    base_dir = Path(__file__).parent.parent
+    base_dir = Path(__file__).parent
     pasta = base_dir / 'Base de Dados'
     
     for arquivo_csv in pasta.glob("*.csv"):
@@ -68,8 +68,8 @@ def processar_serial():
                     d["distm4_b"] += float(linha["distm4_b"])
                     d["suspm4_b"] += float(linha["suspm4_b"])
 
-                except Exception as e:
-                    print("Erro na linha:", e) # Se der erro em uma linha, pula para a próxima
+                except:
+                    pass# Se der erro em uma linha, pula para a próxima
     return dados
 
 # PARALELO
@@ -112,7 +112,7 @@ def processar_arquivo(caminho):
 #  multi-thread
 def processar_paralelo():
 
-    base_dir = Path(__file__).parent.parent
+    base_dir = Path(__file__).parent
     pasta = base_dir / 'Base de Dados'
 
     # lista com o caminho de todos os CSVs da pasta
