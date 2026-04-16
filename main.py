@@ -4,6 +4,7 @@ from Funcoes.Funcao3 import arquivo_resumo_meta_tribunal
 from Funcoes.Funcao2 import menu
 from Funcoes.Funcao4 import relatorio_de_muncipio
 
+#Menu Geral
 def menu_opcoes():
     print("""//=======================================================\\\\
 ||  
