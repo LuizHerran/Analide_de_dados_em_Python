@@ -1,5 +1,3 @@
-import csv
-import os
 import time
 import csv
 from pathlib import Path
@@ -134,7 +132,6 @@ def processar_paralelo():
 
     return resultado_final
 
-# CALCULO + CSV
 # Função para calcular as metas e gerar o arquivo de saída
 def salvar_resumo(dados):
     # Função interna para fazer a divisão e multiplicar por 100 (evita erro de divisão por zero)
@@ -187,7 +184,6 @@ def salvar_resumo(dados):
                 "Meta4B": round(meta4b, 2)
             })
 
-# MENU
 #Parte visual para o usuário escolher o que ele quer fazer
 def menu():
     while True:
